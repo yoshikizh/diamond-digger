@@ -67,8 +67,8 @@ contract ContractDiamondDigger is ContractBase {
 
   // 普通账户的相关映射，用于获取账户数据 (eg: g 开头为全局变量)
   mapping (address => Account) g_user_accounts_mapping;
-  mapping (address => Diamond) g_user_diamonds_mapping;
-  mapping (address => Item) g_user) g_items_mapping;
+  mapping (address => Diamond[]) g_user_diamonds_mapping;
+  mapping (address => Item[]) g_user) g_items_mapping;
 
   // 存储道具信息(仅初始化时一次性存储)
   ItemInfo[] iteminfos = [];

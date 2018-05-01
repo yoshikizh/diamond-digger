@@ -30,9 +30,9 @@ contract ContractBase {
   /**
    * @dev 验证门票
    */
-  checkUserEnterFee() {
+  modifier checkUserEnterFee() {
     // TODO 是否免门票条件验证
-    
+
     require(!free_enter && sender.value >= ENTER_FEE);
     _;
   }
