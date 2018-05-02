@@ -9,48 +9,42 @@ contract ContractDiamondDigger is ContractBase {
   
   /**
    * 钻石结构
-   * hash - 唯一hash值
+   * token - 唯一hash值
    * karat - 克拉 1-64
    * created_time - 被挖出的时间
    * created_block_hash - 产生于哪个区块
-   * belongs_to_account - 所属账号
-   * on_market - 是否被放置在交易市场
-   * on_market_ether - 在交易市场上的标价(单位 ether)
    */
   struct Diamond {
-    bytes64 id,
+    bytes64 token_id,
     uint8 karat,
     uint32 created_time,
-    uint256 created_block_hash,
-    address belongs_to_account,
-    bool on_market,
-    uint on_market_ether
+    uint256 created_block_hash
   }
 
   /**
-   * 道具结构
-   * id - 0-255
+   * 道具种类结构
+   * item_type_id - 0-255
    * name - 名称
    * description - 描述
-   * created_time - 获得得时间
-   * belongs_to_account - 所属账号
    */
-  struct ItemInfo {
-    uint8 id,
+  struct ItemType {
+    uint8 item_type_id,
     bytes256 name,
     string description
   }
 
   /**
    * 道具结构
-   * id - 0-255
+   * token_id - 唯一hash值
    * created_time - 获得得时间
-   * belongs_to_account - 所属账号
+   * created_block_hash - 产生于哪个区块
+   * item_type_id - 对应道具种类(挖钻同时概率性获得不同种类道具)
    */
   struct Item {
-    uint8 id,
+    bytes64 token_id,
     uint32 created_time,
-    address belongs_to_account
+    uint256 created_block_hash
+    unit8 item_type_id;
   }
 
   /**
@@ -67,11 +61,24 @@ contract ContractDiamondDigger is ContractBase {
 
   // 普通账户的相关映射，用于获取账户数据 (eg: g 开头为全局变量)
   mapping (address => Account) g_user_accounts_mapping;
-  mapping (address => Diamond[]) g_user_diamonds_mapping;
-  mapping (address => Item[]) g_user) g_items_mapping;
+
+  // 钻石存储结构
+  Diamond[] g_diamonds = [];
+
+  // 道具存储结构
+  Item[] g_items = [];
 
   // 存储道具信息(仅初始化时一次性存储)
-  ItemInfo[] iteminfos = [];
+  ItemInfo[] g_iteminfos = [];
+
+  // mapping (address => Diamond[]) g_owner_to_diamonds_mapping;
+  // mapping (address => Item[]) g_user) g_owner_to_items_mapping;
+
+  // 钻石所属账户 
+  mapping (bytes64 => address) g_diamond_token_to_owner_mapping;
+
+  // 道具所属账户
+  mapping (bytes64 => address) g_item_token_to_owner_mapping;
 
   // 定义web3.js event
   event afterCreateAccount();
@@ -81,13 +88,13 @@ contract ContractDiamondDigger is ContractBase {
    * 创建一些初始化数据
    */
   function ContractDiamondDigger(){
-    iteminfos.push(ItemInfo(0,"道具0","道具0描述"))
-    iteminfos.push(ItemInfo(1,"道具1","道具1描述"))
-    iteminfos.push(ItemInfo(1,"道具2","道具2描述"))
+    g_iteminfos.push(ItemInfo(0,"道具0","道具0描述"))
+    g_iteminfos.push(ItemInfo(1,"道具1","道具1描述"))
+    g_iteminfos.push(ItemInfo(1,"道具2","道具2描述"))
   }
 
   /**
-   * @title 注册账号
+   * @title 添加用户
    * @params account_address 外部账号地址
    * @params nickname 昵称
    */
