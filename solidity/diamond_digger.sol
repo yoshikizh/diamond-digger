@@ -13,12 +13,14 @@ contract ContractDiamondDigger is ContractBase {
    * karat - 克拉 1-64
    * created_time - 被挖出的时间
    * created_block_hash - 产生于哪个区块
+   * digger_account_address - 挖出人账号地址
    */
   struct Diamond {
     bytes64 token_id,
     uint8 karat,
     uint32 created_time,
-    uint256 created_block_hash
+    uint256 created_block_hash,
+    address digger_account_address
   }
 
   /**
@@ -74,11 +76,11 @@ contract ContractDiamondDigger is ContractBase {
   // mapping (address => Diamond[]) g_owner_to_diamonds_mapping;
   // mapping (address => Item[]) g_user) g_owner_to_items_mapping;
 
-  // 钻石所属账户 
-  mapping (bytes64 => address) g_diamond_token_to_owner_mapping;
+  // 钻石所属账户 (diamonds 数组 index 作为 key)
+  mapping (uint256 => address) g_diamond_index_to_owner_mapping;
 
-  // 道具所属账户
-  mapping (bytes64 => address) g_item_token_to_owner_mapping;
+  // 道具所属账户 (items 数组 index 作为 key)
+  mapping (uint256 => address) g_item_index_to_owner_mapping;
 
   // 定义web3.js event
   event afterCreateAccount();
